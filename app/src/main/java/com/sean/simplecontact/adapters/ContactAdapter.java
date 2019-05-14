@@ -32,6 +32,20 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         this.contacts = contacts;
         notifyDataSetChanged();
     }
+    public void updateContactList(Contact contact){
+        //search for Contact and update
+        for(Contact oldContact:contacts){
+            if(oldContact.getId().equalsIgnoreCase(contact.getId())){
+                oldContact.setFirstName(contact.getFirstName());
+                oldContact.setLastName(contact.getLastName());
+                oldContact.setEmail(contact.getEmail());
+                oldContact.setPhone(contact.getPhone());
+                notifyDataSetChanged();
+                break;
+            }
+        }
+
+    }
 
     @NonNull
     @Override

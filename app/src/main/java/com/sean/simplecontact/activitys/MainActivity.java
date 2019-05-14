@@ -1,6 +1,9 @@
 package com.sean.simplecontact.activitys;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,7 +24,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
+
     ContactAdapter adapter;
     ActivityMainBinding binding;
     @Override
@@ -31,6 +35,14 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(binding.toolbar);
         setupAdapter();
         binding.toolbar.setTitle("Contacts");
+        binding.swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                updateAdapterWithJsonData();
+                binding.swipeContainer.setRefreshing(false);
+            }
+        });
+
     }
 
     @Override
@@ -51,10 +63,10 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
     private void setupAdapter() {
-        adapter = new ContactAdapter(this,new ContactAdapter.ContactAdapterCallback() {
+        adapter = new ContactAdapter(this, new ContactAdapter.ContactAdapterCallback() {
             @Override
             public void onItemClicked(Contact contact) {
-
+                navigateToDetailScreen(contact);
             }
 
         });
@@ -63,7 +75,15 @@ public class MainActivity extends AppCompatActivity {
         binding.recycleView.setLayoutManager(mLayoutManager);
 
         //pump data
-        adapter.setContacts(getContactList());
+        updateAdapterWithJsonData();
+    }
+    private void updateAdapterWithJsonData(){
+            adapter.setContacts(getContactList());
+    }
+    private void navigateToDetailScreen(Contact contact){
+        Intent intent = new Intent(getBaseContext(), ContactDetailActivity.class);
+        intent.putExtra(ContactDetailActivity.CONTACT_DATA, new Gson().toJson(contact));
+        startActivityForResult(intent,1);
     }
     private ArrayList<Contact> getContactList(){
         String jsonString = getContactJsonString();
@@ -75,9 +95,17 @@ public class MainActivity extends AppCompatActivity {
         InputStream inputStream = getResources().openRawResource(R.raw.data);
         return new Scanner(inputStream).useDelimiter("\\A").next();
     }
-    //simple toast
-    private void simpleToast(String msg){
-        Toast.makeText(this,msg,Toast.LENGTH_SHORT).show();
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == 1 && requestCode == ContactDetailActivity.UPDATED_CONTACT_RESULT_CODE){
+            if(data != null){
+                String json = data.getStringExtra(ContactDetailActivity.CONTACT_DATA);
+                Contact contact = new Gson().fromJson(json,Contact.class);
+                adapter.updateContactList(contact);
+            }
+        }
     }
+
 
 }
