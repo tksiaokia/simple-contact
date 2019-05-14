@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.sean.newsoft.activity.MainActivity">
+    <item
+        android:id="@+id/action_search"
+        android:orderInCategory="300"
+        android:title="Search"
+        android:icon="@android:drawable/ic_menu_search"
+        app:showAsAction="ifRoom"></item>
+
+    <item
+        android:id="@+id/action_add"
+        android:orderInCategory="300"
+        android:title="Add"
+        android:icon="@android:drawable/ic_menu_add"
+        app:showAsAction="ifRoom"></item>
+
+</menu>
